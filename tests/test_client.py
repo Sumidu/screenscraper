@@ -51,12 +51,42 @@ def test_get_regions():
     for region in regions[:5]:
         print(f"  {region}")
     assert len(regions) > 0
+
+def test_get_system_medialist():
+    client = ScreenScraperClient.from_credentials_file("screenscraper_credentials.json")
+    media_list = client.get_system_media_list()
+    assert len(media_list) > 0
     
+def test_get_company_media():
+    client = ScreenScraperClient.from_credentials_file("screenscraper_credentials.json")
+
+    result = client.get_company_media(
+        company_id=3,  # Use a known ID like Nintendo or Sega
+        media="logo-monochrome",
+        outputformat="png",
+        max_age=5  # Low cache time for testing
+    )
+
+    if isinstance(result, bytes):
+        print("✅ Received media content.")
+        assert len(result) > 0
+    else:
+        print("⚠️ Server response:", result)
+        assert result in ("CRCOK", "MD5OK", "SHA1OK", "NOMEDIA")
+    
+
+def test_clear_cache():
+    client = ScreenScraperClient.from_credentials_file("screenscraper_credentials.json")
+    client.clear_cache()
+    print("✅ Cache cleared.")
    
 
 if __name__ == "__main__":
+    #test_clear_cache()
     test_get_server_info()
     test_get_platforms_list()
     test_get_game_info()
     test_get_user_info()
     test_get_regions()
+    test_get_system_medialist()
+    test_get_company_media()
